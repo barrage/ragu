@@ -1,0 +1,76 @@
+name: ragu
+services:
+  weaviate:
+    command:
+      - "--host"
+      - "0.0.0.0"
+      - "--port"
+      - "8080"
+      - "--scheme"
+      - "http"
+    image: "semitechnologies/weaviate:1.24.12"
+    container_name: weaviate
+    ports:
+      - "8080:8080"
+    volumes:
+      - "weaviate_data:/var/lib/docker/ragu/weaviate/data"
+    restart: "on-failure:0"
+    env_file:
+      - "config/weaviate/.env"
+  ragu-chunker:
+    platform: "linux/amd64"
+    build:
+      context: "ragu-chunker"
+      dockerfile: "docker/chonkit.Dockerfile"
+    env_file:
+      - "config/ragu-chunker/.env"
+    depends_on:
+      - "ragu-chunker-postgres"
+      - weaviate
+    ports:
+      - "42069:42069"
+    volumes:
+      - "ragu_chunker_data:/var/lib/docker/ragu/data"
+  ragu-chunker-postgres:
+    image: "postgres:latest"
+    env_file:
+      - "config/ragu-chunker/.postgres"
+    ports:
+      - "5433:5432"
+    volumes:
+      - "ragu_chunker_postgres_data:/var/lib/docker/ragu/postgres/data"
+  ragu-chat-api-postgres:
+    image: "postgres:latest"
+    ports:
+      - "5454:5432"
+    restart: "always"
+    env_file:
+      - "config/ragu-chat-api/.postgres"
+    volumes:
+      - "ragu_chat_api_postgres_data:/var/lib/docker/ragu/postgres/data"
+  ragu-chat-api:
+    build:
+      context: "ragu-chat-api"
+      additional_contexts:
+        config: "config/ragu-chat-api"
+      dockerfile: "../docker/ragu-chat-api/Dockerfile"
+    ports:
+      - "42070:42069"
+    depends_on:
+      - "ragu-chat-api-postgres"
+      - weaviate
+  ragu-web-app:
+    build:
+      context: "ragu-web-app"
+      additional_contexts:
+        config: "config/ragu-web-app"
+      dockerfile: "../docker/ragu-web-app/Dockerfile"
+    ports:
+        - "3000:3000"
+
+volumes:
+  ragu_chunker_postgres_data:
+  ragu_chat_api_postgres_data:
+  ragu_chunker_data:
+  weaviate_data:
+  feserver_data:
