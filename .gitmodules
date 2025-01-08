@@ -1,0 +1,9 @@
+[submodule "ragu-chunker"]
+	path = ragu-chunker
+	url = https://github.com/barrage/ragu-chunker
+[submodule "ragu-web-app"]
+	path = ragu-web-app
+	url = https://github.com/barrage/ragu-web-app
+[submodule "ragu-chat-api"]
+	path = ragu-chat-api
+	url = https://github.com/barrage/ragu-chat-api
