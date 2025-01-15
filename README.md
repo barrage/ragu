@@ -5,11 +5,11 @@ Ragu is a system for creating and managing agents.
 
 It includes:
 - Ragu Chunker (`ragu-chunker`): Document processing and chunking service
-  - [README](ragu-chunker/README.md)
+  - [README](https://github.com/barrage/ragu-chunker/blob/main/README.md)
 - Ragu Web App (`ragu-web-app`): Frontend application for user interaction
-  - [README](ragu-web-app/README.md)
+  - [README](https://github.com/barrage/ragu-web-app/blob/main/README.md)
 - Ragu Chat API (`ragu-chat-api`): Backend API for chat functionality
-  - [README](ragu-chat-api/README.md)
+  - [README](https://github.com/barrage/ragu-chat-api/blob/main/README.md)
 
 This repository contains all components and setup instructions for the Ragu application stack.
 
@@ -31,6 +31,8 @@ This repository contains all components and setup instructions for the Ragu appl
 This chapter will cover steps to start the Ragu application stack on your local machine utilizing OpenAI for embeddings 
 and llms and Google as Oauth provider.
 
+Detailed Oauth information can be found in `ragu-chat-api` documentation [Authentication Chapter](https://github.com/barrage/ragu-chat-api?tab=readme-ov-file#authentication)
+
 Supported providers:
 
 | Oauth  | LLM                            | Embedder                                       |
@@ -42,16 +44,23 @@ Supported providers:
 This article will cover cloud based solution with OpenAI and Azure. Local development guide will be provided 
 in the future releases.
 ## Clone the repository
+The repository contains submodules, so make sure to clone it with the `--recurse-submodules` flag.
+### Clone the repository with submodules
 ```bash
-git clone git@github.com:barrage/ragu.git
-cd ragu
+git clone --recurse-submodules git@github.com:barrage/ragu.git
 ```
+### Load submodules if you forgot to clone with `--recurse-submodules`
+```bash
+git submodule init && \
+git submodule update
+```
+
 
 ## Configure the environment
 Minimal requirements are an Oauth provider and OpenAI API key.
 ### Oauth configuration
 Having an Oauth2 client id and secret is required to run the application. Obtain these from Google or Apple or Carnet.
-For example, if we want to enable Google Oauth, edit the following files:
+For example, if we want to enable Google Oauth and create, edit the following files:
 - `config/ragu-chat-api/application.conf`
 ```kotlin
 ...
@@ -61,6 +70,15 @@ features {
         google = true
     }
     ...
+}
+...
+// use this to create the initial admin account
+// be careful to use the email of your Oauth provider account
+admin {
+  email = "admin.admin@admin.com"
+  fullName = "Admin"
+  firstName = "Admin"
+  lastName = "Admin"
 }
 ...
 oauth {
@@ -104,26 +122,6 @@ llm {
 OPENAI_KEY="open-ai-key"
 ...
 ```
-## Give permission to install script
-### Un*x based systems
-```bash
-chmod 700 install.sh
-```
-### Windows
-Batch scripts are executable by default on Windows.
-
-## Run the install script
-The script will initialize the submodules, build the docker images, start the services and prompt you to create the
-initial admin account.
-### Un*x based systems
-```bash
-./install.sh
-```
-### Windows
-```bash
-./install.bat
-```
-When the script finishes you can manage the stack using `docker compose`.
 
 ## Volumes
 You can define volumes in the `docker-compose.yml` file to persist data on your host machine.
