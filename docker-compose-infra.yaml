@@ -1,0 +1,55 @@
+##################################################################################################################
+# This Docker Compose file defines the infrastructure services required for the Ragu applications.
+# It ensures that the PostgreSQL containers are fully started before initiating the application build processes,
+# as the applications depend on fully migrated databases for code generation from the database schema.
+#################################################################################################################
+name: ragu
+services:
+  weaviate:
+    command:
+      - "--host"
+      - "0.0.0.0"
+      - "--port"
+      - "8080"
+      - "--scheme"
+      - "http"
+    image: "semitechnologies/weaviate:1.24.12"
+    container_name: weaviate
+    ports:
+      - "8080:8080"
+    volumes:
+      - "weaviate_data:/var/lib/docker/ragu/weaviate/data"
+    restart: "on-failure:0"
+    env_file:
+      - "config/weaviate/.env"
+  ragu-chunker-postgres:
+    image: "postgres:latest"
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U postgres" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    env_file:
+      - "config/ragu-chunker/.postgres"
+    ports:
+      - "5433:5432"
+    volumes:
+      - "ragu_chunker_postgres_data:/var/lib/docker/ragu/postgres/data"
+  ragu-chat-api-postgres:
+    image: "postgres:latest"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    ports:
+      - "5454:5432"
+    restart: "always"
+    env_file:
+      - "config/ragu-chat-api/.postgres"
+    volumes:
+      - "ragu_chat_api_postgres_data:/var/lib/docker/ragu/postgres/data"
+volumes:
+  ragu_chunker_postgres_data:
+  ragu_chat_api_postgres_data:
+  weaviate_data:

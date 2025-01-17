@@ -1,53 +1,16 @@
+##################################################################################################################
+# The included Docker Compose file defines the infrastructure services required for the Ragu applications.
+# It ensures that the PostgreSQL containers are fully started before initiating the application build processes,
+# as the applications depend on fully migrated databases for code generation from the database schema.
+# Including this file allows us to manage the containers through a single Docker Compose file once the initial
+# setup is completed and allows us to leverage `depends_on` directive to ensure the correct startup order.
+# Running the initial setup from this file will result in error because `ragu-chat-api` will not be able to connect
+# to the `ragu-chat-api-postgres` service.
+#################################################################################################################
+include:
+  - "docker-compose-infra.yaml"
 name: ragu
 services:
-  weaviate:
-    command:
-      - "--host"
-      - "0.0.0.0"
-      - "--port"
-      - "8080"
-      - "--scheme"
-      - "http"
-    image: "semitechnologies/weaviate:1.24.12"
-    container_name: weaviate
-    ports:
-      - "8080:8080"
-    volumes:
-      - "weaviate_data:/var/lib/docker/ragu/weaviate/data"
-    restart: "on-failure:0"
-    env_file:
-      - "config/weaviate/.env"
-  ragu-chunker:
-    platform: "linux/amd64"
-    build:
-      context: "ragu-chunker"
-      dockerfile: "docker/chonkit.Dockerfile"
-    env_file:
-      - "config/ragu-chunker/.env"
-    depends_on:
-      - "ragu-chunker-postgres"
-      - weaviate
-    ports:
-      - "42069:42069"
-    volumes:
-      - "ragu_chunker_data:/var/lib/docker/ragu/data"
-  ragu-chunker-postgres:
-    image: "postgres:latest"
-    env_file:
-      - "config/ragu-chunker/.postgres"
-    ports:
-      - "5433:5432"
-    volumes:
-      - "ragu_chunker_postgres_data:/var/lib/docker/ragu/postgres/data"
-  ragu-chat-api-postgres:
-    image: "postgres:latest"
-    ports:
-      - "5454:5432"
-    restart: "always"
-    env_file:
-      - "config/ragu-chat-api/.postgres"
-    volumes:
-      - "ragu_chat_api_postgres_data:/var/lib/docker/ragu/postgres/data"
   ragu-chat-api:
     build:
       context: "ragu-chat-api"
@@ -67,10 +30,20 @@ services:
       dockerfile: "../docker/ragu-web-app/Dockerfile"
     ports:
         - "3000:3000"
+  ragu-chunker:
+    platform: "linux/amd64"
+    build:
+      context: "ragu-chunker"
+      dockerfile: "docker/chonkit.Dockerfile"
+    env_file:
+      - "config/ragu-chunker/.env"
+    depends_on:
+      - "ragu-chunker-postgres"
+      - weaviate
+    ports:
+      - "42069:42069"
+    volumes:
+      - "ragu_chunker_data:/var/lib/docker/ragu/data"
 
 volumes:
-  ragu_chunker_postgres_data:
-  ragu_chat_api_postgres_data:
   ragu_chunker_data:
-  weaviate_data:
-  feserver_data:
