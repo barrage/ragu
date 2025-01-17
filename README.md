@@ -3,31 +3,43 @@
 # Ragu Application Repository
 Ragu is a system for creating and managing agents.
 
-It includes:
-- Ragu Chunker (`ragu-chunker`): Document processing and chunking service
+## Table of Contents
+- [Components](#components)
+- [Prerequisites](#prerequisites)
+- [Getting Started](#getting-started)
+  - [Clone the Repository](#clone-the-repository)
+  - [Configure the Environment](#configure-the-environment)
+    - [Oauth Configuration](#oauth-configuration)
+    - [OpenAI Configuration](#openai-configuration)
+  - [Starting Ragu](#starting-ragu)
+- [Volumes](#volumes)
+- [Notes](#notes)
+
+## Components
+- **Ragu Chunker (`ragu-chunker`):** Document processing and chunking service
   - [README](https://github.com/barrage/ragu-chunker/blob/main/README.md)
-- Ragu Web App (`ragu-web-app`): Frontend application for user interaction
+- **Ragu Web App (`ragu-web-app`):** Frontend application for user interaction
   - [README](https://github.com/barrage/ragu-web-app/blob/main/README.md)
-- Ragu Chat API (`ragu-chat-api`): Backend API for chat functionality
+- **Ragu Chat API (`ragu-chat-api`):** Backend API for chat functionality
   - [README](https://github.com/barrage/ragu-chat-api/blob/main/README.md)
 
 This repository contains all components and setup instructions for the Ragu application stack.
 
-# Prerequisites:
-- Git
+## Prerequisites:
+- **Git**
   - Git installation https://git-scm.com/book/en/v2/Getting-Started-Installing-Git
-- Docker
+- **Docker**
   - Required version: 20.10.13 or higher
   - Docker installation https://docs.docker.com/desktop/
-- Docker Compose:
+- **Docker Compose:**
   - Required version: 2.17.0 or higher
   - Docker Compose installation https://docs.docker.com/compose/install/
-- OpenAI API key
+- **OpenAI API key**
   - OpenAI API key https://platform.openai.com/docs/overview
-- Google Oauth2 client id and secret
+- **Google Oauth2 client id and secret**
   - Google Oauth2 https://developers.google.com/identity/protocols/oauth2
 
-# Getting Started
+## Getting Started
 This chapter will cover steps to start the Ragu application stack on your local machine utilizing OpenAI for embeddings 
 and llms and Google as Oauth provider.
 
@@ -43,18 +55,17 @@ Supported providers:
 
 This article will cover cloud based solution with OpenAI and Azure. Local development guide will be provided 
 in the future releases.
-## Clone the repository
+### Clone the repository
 The repository contains submodules, so make sure to clone it with the `--recurse-submodules` flag.
-### Clone the repository with submodules
+#### Clone the repository with submodules
 ```bash
-git clone --recurse-submodules git@github.com:barrage/ragu.git
+git clone --recurse-submodules https://github.com/barrage/ragu.git
 ```
-### Load submodules if you forgot to clone with `--recurse-submodules`
+#### Load submodules if you forgot to clone with `--recurse-submodules`
 ```bash
 git submodule init && \
 git submodule update
 ```
-
 
 ## Configure the environment
 Minimal requirements are an Oauth provider and OpenAI API key.
@@ -123,15 +134,39 @@ OPENAI_KEY="open-ai-key"
 ...
 ```
 
+## Starting Ragu
+### Un*x systems
+```bash
+docker compose -f docker-compose-infra.yaml up -d \
+  && docker compose up -d
+```
+### Windows PowerShell
+```bash
+docker compose -f docker-compose-infra.yaml -d;
+docker compose up -d
+```
+
+First the infrastructure services are started which must be fully ready and accepting connections so
+the application services can perform migrations and code generation from database schema.
+
+The infrastructure services are included in the main `docker-compose.yaml` file, therefore after the
+initial setup the stack can be managed by it i.e. by just using the `docker compose` command.
+
+*This process may take a while depending on your system, especially on ARM machines.*
+
 ## Volumes
-You can define volumes in the `docker-compose.yml` file to persist data on your host machine.
+You can define volumes persist data on your host machine.
 ```yaml
+# docker-compose-infra.yaml
 volumes:
   postgres_data:
   qdrant_data:
-  chonkit_data:
   weaviate_data:
-  feserver_data:
+```
+```yaml
+# docker-compose.yaml
+volumes:
+  chonkit_data:
 ```
  ## Notes
 Currently, the whole stack is built from source. In the future releases we will provide artifacts like 
