@@ -10,13 +10,13 @@ services:
       - "--host"
       - "0.0.0.0"
       - "--port"
-      - "8080"
+      - "80"
       - "--scheme"
       - "http"
     image: "semitechnologies/weaviate:1.24.12"
     container_name: weaviate
     ports:
-      - "8080:8080"
+      - "8080:80"
     volumes:
       - "weaviate_data:/var/lib/docker/ragu/weaviate/data"
     restart: "on-failure:0"
