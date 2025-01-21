@@ -142,7 +142,7 @@ docker compose -f docker-compose-infra.yaml up -d \
 ```
 ### Windows PowerShell
 ```bash
-docker compose -f docker-compose-infra.yaml -d;
+docker compose -f docker-compose-infra.yaml up -d;
 docker compose up -d
 ```
 
