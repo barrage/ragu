@@ -34,7 +34,9 @@ services:
     platform: "linux/amd64"
     build:
       context: "ragu-chunker"
-      dockerfile: "docker/chonkit.Dockerfile"
+      additional_contexts:
+        config: "config/ragu-chunker"
+      dockerfile: "../docker/ragu-chunker/Dockerfile"
     env_file:
       - "config/ragu-chunker/.env"
     depends_on:
