@@ -1,0 +1,11 @@
+API_BASE_URL=https://ragu-kappi-demo-pevex.barrage.dev
+API_CHUCKER_URL=https://ragu-chonk-demo-pevex.barrage.dev
+GOOGLE_OAUTH_CLIENT_ID="321294381659-u64pkim8tmo58f1gjvr8ocht4aehbdst.apps.googleusercontent.com"
+OAUTH_GOOGLE_URL="https://accounts.google.com/o/oauth2/v2/auth"
+WS_URL=wss://ragu-kappi-demo-pevex.barrage.dev
+
+ENABLE_WHATSAPP='true'
+
+ENABLE_AAIEDU_LOGIN='true' 
+OAUTH_AAIEDU_LOGIN_CLIENTID='2cc90ca6-d400-4414-95a8-efb3cbb9f37c'
+OAUTH_AAIEDU_URL="https://fed-lab.aaiedu.hr/sso/module.php/oidc/authorize.php"
