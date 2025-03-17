@@ -67,6 +67,24 @@ git submodule init && \
 git submodule update
 ```
 
+## Updating to a new release
+### Create Backups
+If you are using persistent volumes, ensure your data is backed up. If you are not using volumes, manually export any important data to prevent loss when updating containers.
+### Fetch the New Release
+```bash
+git fetch origin release-0.2.0
+git checkout release-0.2.0
+```
+### Update Submodules
+```bash
+git submodule update --remote --recursive
+```
+### Rebuild the Images and Containers
+```bash
+docker compose down ragu-chat-api ragu-chunker ragu-web-app \
+docker compose up -d
+```
+
 ## Configure the environment
 Minimal requirements are an Oauth provider and OpenAI API key.
 ### Oauth configuration
