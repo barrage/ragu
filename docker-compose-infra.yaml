@@ -5,7 +5,36 @@
 #################################################################################################################
 name: ragu
 services:
+  redis:
+    image: redis:latest
+    container_name: ragu_redis
+    volumes:
+      - redis_data:/var/lib/docker/ragu/redis/data
+    ports:
+      - "6379:6379"
+    command: ["redis-server", "--requirepass", "password", "--appendonly", "yes"]
+  minio:
+    image: minio/minio:latest
+    container_name: ragu_minio
+    volumes:
+      - minio_data:/var/lib/docker/ragu/minio/data
+    ports:
+      - "9000:9000"
+      - "9001:9001"
+    environment:
+      MINIO_ROOT_USER: ROOTNAME
+      MINIO_ROOT_PASSWORD: CHANGEME123
+    command: server /var/lib/docker/ragu/minio/data --console-address ":9001"
+  minio-createbucket:
+    image: minio/mc
+    depends_on:
+      - minio
+    entrypoint: /bin/sh -c " /usr/bin/mc alias set ragu_minio http://minio:9000 ROOTNAME CHANGEME123; /usr/bin/mc rm -r --force ragu_minio/ragu; /usr/bin/mc mb ragu_minio/ragu; exit 0; "
   weaviate:
+    image: "semitechnologies/weaviate:1.24.12"
+    container_name: ragu_weaviate
+    volumes:
+      - weaviate_data:/var/lib/docker/ragu/weaviate/data
     command:
       - "--host"
       - "0.0.0.0"
@@ -13,19 +42,18 @@ services:
       - "80"
       - "--scheme"
       - "http"
-    image: "semitechnologies/weaviate:1.24.12"
-    container_name: weaviate
     ports:
       - "8080:80"
-    volumes:
-      - "weaviate_data:/var/lib/docker/ragu/weaviate/data"
     restart: "on-failure:0"
     env_file:
       - "config/weaviate/.env"
   ragu-chunker-postgres:
     image: "postgres:latest"
+    container_name: ragu_chonkit_postgres
+    volumes:
+      - ragu_chunker_postgres_data:/var/lib/docker/ragu/postgres/data
     healthcheck:
-      test: [ "CMD-SHELL", "pg_isready -U postgres" ]
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
       interval: 10s
       timeout: 5s
       retries: 5
@@ -33,10 +61,11 @@ services:
       - "config/ragu-chunker/.postgres"
     ports:
       - "5433:5432"
-    volumes:
-      - "ragu_chunker_postgres_data:/var/lib/docker/ragu/postgres/data"
   ragu-chat-api-postgres:
     image: "postgres:latest"
+    container_name: ragu_chat_api_postgres
+    volumes:
+      - ragu_chat_api_postgres_data:/var/lib/docker/ragu/postgres/data
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U postgres"]
       interval: 10s
@@ -47,9 +76,10 @@ services:
     restart: "always"
     env_file:
       - "config/ragu-chat-api/.postgres"
-    volumes:
-      - "ragu_chat_api_postgres_data:/var/lib/docker/ragu/postgres/data"
 volumes:
   ragu_chunker_postgres_data:
   ragu_chat_api_postgres_data:
   weaviate_data:
+  redis_data:
+  minio_data:
+

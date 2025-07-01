@@ -10,10 +10,10 @@ COPY package.json .
 COPY tsconfig.json .
 COPY nuxt.config.ts .
 # submodule repo package-lock.json is not copied because it utilizes internal npm registry
-COPY --from=config package-lock.json .
-COPY --from=config .env .
+COPY --from=config package-lock.json package-lock.json
+COPY --from=config .env .env
 
-RUN npm ci
+RUN npm i
 RUN npm run build
 
 EXPOSE 3000/tcp

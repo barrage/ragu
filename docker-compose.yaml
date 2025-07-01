@@ -22,6 +22,7 @@ services:
     depends_on:
       - "ragu-chat-api-postgres"
       - weaviate
+      - minio
   ragu-web-app:
     build:
       context: "ragu-web-app"
@@ -29,7 +30,7 @@ services:
         config: "config/ragu-web-app"
       dockerfile: "../docker/ragu-web-app/Dockerfile"
     ports:
-        - "3000:3000"
+      - "3000:3000"
   ragu-chunker:
     platform: "linux/amd64"
     build:
@@ -44,6 +45,6 @@ services:
       - "42069:42069"
     volumes:
       - "ragu_chunker_data:/var/lib/docker/ragu/data"
-
 volumes:
   ragu_chunker_data:
+
