@@ -9,11 +9,9 @@ Ragu is a system for creating and managing agents.
 - [Components](#components)
 - [Prerequisites](#prerequisites)
 - [Getting Started](#getting-started)
-  - [Clone the Repository](#clone-the-repository)
-  - [Configure the Environment](#configure-the-environment)
-    - [Oauth Configuration](#oauth-configuration)
-    - [OpenAI Configuration](#openai-configuration)
-  - [Starting Ragu](#starting-ragu)
+  - [Clone](#clone)
+  - [Configure](#configure)
+  - [Start](#start)
 - [Volumes](#volumes)
 - [Notes](#notes)
 
@@ -40,86 +38,39 @@ This repository contains all components and setup instructions for the Ragu appl
   - Docker Compose installation https://docs.docker.com/compose/install/
 - **OpenAI API key**
   - OpenAI API key https://platform.openai.com/docs/overview
-- **Google project** (if using Google Drive)
-  - Google Oauth2 https://developers.google.com/identity/protocols/oauth2
 
 ## Getting Started
 
-### Clone the repository
+### Clone
 
 The repository contains submodules, so make sure to clone it with the `--recurse-submodules` flag.
 
-#### Clone the repository with submodules
+Clone the repository with submodules
 
 ```bash
 git clone --recurse-submodules https://github.com/barrage/ragu.git
 ```
 
-#### Load submodules if you forgot to clone with `--recurse-submodules`
+Load submodules if you forgot to clone with `--recurse-submodules`
 
 ```bash
-git submodule init && \
-git submodule update
+git submodule init && git submodule update
 ```
 
-## Configure the environment
+### Configure
 
-Minimal requirements are an Oauth provider and OpenAI API key.
+This repository is configured to quickly set Ragu up with minimal configuration. As such, it only works with OpenAI as the model provider and requires no authorization to reduce the amount of starting configuration necessary when starting it. To change this, it is suggested to go through each of the applications' documentation page.
 
-### Oauth configuration
+When the chat API runs without JWT authorization, any user that connects to it will "authorize" as the `admin` user, i.e. a dummy JWT is created for each request with the subject `admin` and the `admin` entitlement to allow the dummy user full access to the app.
 
-Having an Oauth2 client id and secret is required to run the application. Obtain these from Google or Apple or Carnet.
-For example, if we want to enable Google Oauth and create, edit the following files:
+---
 
-- `config/ragu-chat-api/application.conf`
+**DISCLAIMER**: If running Ragu in production, an authorization server is mandatory to get the full feature set of the chat API.
 
-```kotlin
-...
-features {
-    ...
-    oauth {
-        google = true
-    }
-    ...
-}
-...
-// use this to create the initial admin account
-// be careful to use the email of your Oauth provider account
-admin {
-  email = "admin.admin@admin.com"
-  fullName = "Admin"
-  firstName = "Admin"
-  lastName = "Admin"
-}
-...
-oauth {
-    google {
-      tokenEndpoint = "tokenEndpoint"
-      keysEndpoint = "keysEndpoint"
-      tokenIssuer = "tokenIssuer"
-      accountEndpoint = "accountEndpoint"
-      clientId = "clientId"
-      clientSecret = "clientSecret"
-    }
-}
-...
-```
+---
 
-- `config/ragu-web-app/.env`
-
-```env
-...
-OAUTH_GOOGLE_LOGIN_CLIENTID=google-client-id
-...
-```
-
-The rest of the stack is configured to work together but feel free to make changes that suit your needs.
-And/or vendors.
-
-### OpenAI configuration
-
-An OpenAI API key is required to run the application. Obtain this from OpenAI.
-Edit the following files:
+An OpenAI API key is required to run the application.
+Obtain this from OpenAI, then replace it in the following files:
 
 - `config/ragu-chat-api/application.conf`
 
@@ -127,8 +78,7 @@ Edit the following files:
 ...
 llm {
     openai {
-      endpoint = "https://api.openai.com/v1/"
-      apiKey = "apiKey"
+      apiKey = "OPENAI_API_KEY"
     }
 }
 ...
@@ -138,17 +88,17 @@ llm {
 
 ```env
 ...
-OPENAI_KEY="open-ai-key"
+OPENAI_KEY="OPENAI_API_KEY"
 ...
 ```
 
-## Starting Ragu
+### Starting Ragu
 
 ### Un\*x systems
 
 ```bash
-docker compose -f docker-compose-infra.yaml up -d \
-  && docker compose up -d
+docker compose -f docker-compose-infra.yaml up -d
+docker compose up -d
 ```
 
 ### Windows PowerShell
@@ -158,11 +108,13 @@ docker compose -f docker-compose-infra.yaml up -d;
 docker compose up -d
 ```
 
-First the infrastructure services are started which must be fully ready and accepting connections so
-the application services can perform migrations and code generation from database schema.
+First the infrastructure services are started which must be fully ready and accepting connections.
 
 The infrastructure services are included in the main `docker-compose.yaml` file, therefore after the
 initial setup the stack can be managed by it i.e. by just using the `docker compose` command.
+
+Note, if the chunker will not start because it can't find the `ragu` bucket try restarting it.
+If it still can't find it, re-run the `minio-createbucket` container and try it again.
 
 _This process may take a while depending on your system, especially on ARM machines._
 
@@ -175,6 +127,8 @@ You can define volumes persist data on your host machine.
 volumes:
   postgres_data:
   qdrant_data:
+  redis_data:
+  minio_data:
   weaviate_data:
 ```
 
@@ -188,4 +142,4 @@ volumes:
 
 Currently, the whole stack is built from source. In the future releases we will provide artifacts like
 binaries, prebuilt images etc...
-`ragu-chunkger` is built in compatibility mode for arm64 systems which will cause slow compilation time on those systems.
+`ragu-chunker` is built in compatibility mode for arm64 systems which will cause slow compilation time on those systems.
