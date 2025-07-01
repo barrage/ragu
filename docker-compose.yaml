@@ -1,7 +1,6 @@
 ##################################################################################################################
 # The included Docker Compose file defines the infrastructure services required for the Ragu applications.
-# It ensures that the PostgreSQL containers are fully started before initiating the application build processes,
-# as the applications depend on fully migrated databases for code generation from the database schema.
+# It ensures that the PostgreSQL containers are fully started before starting the applications.
 # Including this file allows us to manage the containers through a single Docker Compose file once the initial
 # setup is completed and allows us to leverage `depends_on` directive to ensure the correct startup order.
 # Running the initial setup from this file will result in error because `ragu-chat-api` will not be able to connect
@@ -23,6 +22,7 @@ services:
       - "ragu-chat-api-postgres"
       - weaviate
       - minio
+      - minio-create-bucket
   ragu-web-app:
     build:
       context: "ragu-web-app"
@@ -35,12 +35,14 @@ services:
     platform: "linux/amd64"
     build:
       context: "ragu-chunker"
-      dockerfile: "docker/chonkit.Dockerfile"
+      dockerfile: "../docker/ragu-chunker/Dockerfile"
     env_file:
       - "config/ragu-chunker/.env"
     depends_on:
       - "ragu-chunker-postgres"
       - weaviate
+      - minio
+      - minio-create-bucket
     ports:
       - "42069:42069"
     volumes:

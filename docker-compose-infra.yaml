@@ -25,7 +25,7 @@ services:
       MINIO_ROOT_USER: ROOTNAME
       MINIO_ROOT_PASSWORD: CHANGEME123
     command: server /var/lib/docker/ragu/minio/data --console-address ":9001"
-  minio-createbucket:
+  minio-create-bucket:
     image: minio/mc
     depends_on:
       - minio
