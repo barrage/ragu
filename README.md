@@ -1,9 +1,11 @@
 ![Ragu Logo](logo.svg)
 
 # Ragu Application Repository
+
 Ragu is a system for creating and managing agents.
 
 ## Table of Contents
+
 - [Components](#components)
 - [Prerequisites](#prerequisites)
 - [Getting Started](#getting-started)
@@ -16,6 +18,7 @@ Ragu is a system for creating and managing agents.
 - [Notes](#notes)
 
 ## Components
+
 - **Ragu Chunker (`ragu-chunker`):** Document processing and chunking service
   - [README](https://github.com/barrage/ragu-chunker/blob/main/README.md)
 - **Ragu Web App (`ragu-web-app`):** Frontend application for user interaction
@@ -26,6 +29,7 @@ Ragu is a system for creating and managing agents.
 This repository contains all components and setup instructions for the Ragu application stack.
 
 ## Prerequisites:
+
 - **Git**
   - Git installation https://git-scm.com/book/en/v2/Getting-Started-Installing-Git
 - **Docker**
@@ -36,43 +40,39 @@ This repository contains all components and setup instructions for the Ragu appl
   - Docker Compose installation https://docs.docker.com/compose/install/
 - **OpenAI API key**
   - OpenAI API key https://platform.openai.com/docs/overview
-- **Google Oauth2 client id and secret**
+- **Google project** (if using Google Drive)
   - Google Oauth2 https://developers.google.com/identity/protocols/oauth2
 
 ## Getting Started
-This chapter will cover steps to start the Ragu application stack on your local machine utilizing OpenAI for embeddings 
-and llms and Google as Oauth provider.
 
-Detailed Oauth information can be found in `ragu-chat-api` documentation [Authentication Chapter](https://github.com/barrage/ragu-chat-api?tab=readme-ov-file#authentication)
-
-Supported providers:
-
-| Oauth  | LLM                            | Embedder                                       |
-|--------|--------------------------------|------------------------------------------------|
-| Google | OpenAI                         | OpenAI                                         |
-| Apple  | Azure                          | Azure                                          |
-| Carnet | Ollama (for local development) | Onnx Compatible models (for local development) |
-
-This article will cover cloud based solution with OpenAI and Azure. Local development guide will be provided 
-in the future releases.
 ### Clone the repository
+
 The repository contains submodules, so make sure to clone it with the `--recurse-submodules` flag.
+
 #### Clone the repository with submodules
+
 ```bash
 git clone --recurse-submodules https://github.com/barrage/ragu.git
 ```
+
 #### Load submodules if you forgot to clone with `--recurse-submodules`
+
 ```bash
 git submodule init && \
 git submodule update
 ```
 
 ## Configure the environment
+
 Minimal requirements are an Oauth provider and OpenAI API key.
+
 ### Oauth configuration
+
 Having an Oauth2 client id and secret is required to run the application. Obtain these from Google or Apple or Carnet.
 For example, if we want to enable Google Oauth and create, edit the following files:
+
 - `config/ragu-chat-api/application.conf`
+
 ```kotlin
 ...
 features {
@@ -104,19 +104,25 @@ oauth {
 }
 ...
 ```
+
 - `config/ragu-web-app/.env`
+
 ```env
 ...
 OAUTH_GOOGLE_LOGIN_CLIENTID=google-client-id
 ...
 ```
+
 The rest of the stack is configured to work together but feel free to make changes that suit your needs.
 And/or vendors.
 
 ### OpenAI configuration
+
 An OpenAI API key is required to run the application. Obtain this from OpenAI.
 Edit the following files:
+
 - `config/ragu-chat-api/application.conf`
+
 ```kotlin
 ...
 llm {
@@ -127,7 +133,9 @@ llm {
 }
 ...
 ```
+
 - `config/ragu-chunker/.env`
+
 ```env
 ...
 OPENAI_KEY="open-ai-key"
@@ -135,12 +143,16 @@ OPENAI_KEY="open-ai-key"
 ```
 
 ## Starting Ragu
-### Un*x systems
+
+### Un\*x systems
+
 ```bash
 docker compose -f docker-compose-infra.yaml up -d \
   && docker compose up -d
 ```
+
 ### Windows PowerShell
+
 ```bash
 docker compose -f docker-compose-infra.yaml up -d;
 docker compose up -d
@@ -152,10 +164,12 @@ the application services can perform migrations and code generation from databas
 The infrastructure services are included in the main `docker-compose.yaml` file, therefore after the
 initial setup the stack can be managed by it i.e. by just using the `docker compose` command.
 
-*This process may take a while depending on your system, especially on ARM machines.*
+_This process may take a while depending on your system, especially on ARM machines._
 
 ## Volumes
+
 You can define volumes persist data on your host machine.
+
 ```yaml
 # docker-compose-infra.yaml
 volumes:
@@ -163,15 +177,15 @@ volumes:
   qdrant_data:
   weaviate_data:
 ```
+
 ```yaml
 # docker-compose.yaml
 volumes:
   chonkit_data:
 ```
- ## Notes
-Currently, the whole stack is built from source. In the future releases we will provide artifacts like 
+
+## Notes
+
+Currently, the whole stack is built from source. In the future releases we will provide artifacts like
 binaries, prebuilt images etc...
 `ragu-chunkger` is built in compatibility mode for arm64 systems which will cause slow compilation time on those systems.
-
-
-
