@@ -1,12 +1,12 @@
 # Build Stage 1
 
-FROM node:22-alpine AS build
+FROM node:24.0.0-alpine AS build
 
 WORKDIR /app
 
-RUN corepack enable
+# RUN corepack enable
 
-COPY package.json package-lock.json ./
+COPY package.json ./
 
 RUN npm i
 
@@ -16,7 +16,7 @@ RUN npm run build
 
 # Build Stage 2
 
-FROM node:22-alpine
+FROM node:24.0.0-alpine
 
 WORKDIR /app
 
