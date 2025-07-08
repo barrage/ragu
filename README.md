@@ -92,29 +92,18 @@ OPENAI_KEY="OPENAI_API_KEY"
 ...
 ```
 
-### Starting Ragu
-
-### Un\*x systems
+### Start
 
 ```bash
-docker compose -f docker-compose-infra.yaml up -d
 docker compose up -d
 ```
 
-### Windows PowerShell
-
-```bash
-docker compose -f docker-compose-infra.yaml up -d;
-docker compose up -d
-```
-
-First the infrastructure services are started which must be fully ready and accepting connections.
-
-The infrastructure services are included in the main `docker-compose.yaml` file, therefore after the
+The infrastructure services are included in the main `docker-compose.yaml` file (via `docker-compose-infra.yaml`), therefore after the
 initial setup the stack can be managed by it i.e. by just using the `docker compose` command.
 
 Note, if the chunker will not start because it can't find the `ragu` bucket try restarting it.
 If it still can't find it, re-run the `minio-createbucket` container and try it again.
+Same applies for chat API and postgres. Even though they depend on each other via compose, the APIs can sometimes connect too soon and crash.
 
 _This process may take a while depending on your system, especially on ARM machines._
 
